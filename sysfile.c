@@ -442,3 +442,57 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int
+mprotect(void *addr, int len)
+{
+  // create a new page table entry
+  pte_t *pte;
+  // print address
+  cprintf("*addr: %d\n",(uint)addr);
+
+  uint base_address = PGROUNDDOWN((uint)addr);
+  uint current = base_address;
+
+  //while loop
+  do {
+  pte = walkpgdir(proc->pgdir,(void *)current ,0);
+  *pte &= 0xfffffff9;
+
+  *pte |= (PTE_P | PTE_U);
+  }
+  while(current < ((uint)addr +len));
+
+  //update CR3 register
+  lcr3(v2p(proc->pgdir));
+
+  //final return
+  return 0;
+}
+
+int
+munprotect(void *addr, int len)
+{
+  // create a new page table entry
+  pte_t *pte;
+  // print address
+  cprintf("*addr: %d\n",(uint)addr);
+
+  uint base_address = PGROUNDDOWN((uint)addr);
+  uint current = base_address;
+
+  //while loop
+  do {
+  pte = walkpgdir(proc->pgdir,(void *)current ,0);
+  *pte &= 0xfffffff9;
+
+  *pte |= (PTE_P | PTE_W);
+  }
+  while(current < ((uint)addr +len));
+
+  //update CR3 register
+  lcr3(v2p(proc->pgdir));
+
+  //final return
+  return 0;
+}
