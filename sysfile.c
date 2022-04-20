@@ -449,19 +449,19 @@ mprotect(void *addr, int len)
   // create a new page table entry
   pte_t *pte;
   // print address
-  cprintf("*addr: %d\n",(uint)addr);
+  cprintf("*address from parameter: %d\n",(unsigned int)addr);
 
-  uint base_address = PGROUNDDOWN((uint)addr);
-  uint current = base_address;
+  unsigned int initial_address = PGROUNDDOWN((unsigned int)addr);
+  unsigned int rounded_address = initial_address;
 
   //while loop
   do {
-  pte = walkpgdir(proc->pgdir,(void *)current ,0);
+  pte = walkpgdir(proc->pgdir,(void *)rounded_address ,0);
   *pte &= 0xfffffff9;
 
   *pte |= (PTE_P | PTE_U);
   }
-  while(current < ((uint)addr +len));
+  while(rounded_address < ((unsigned int)addr + len));
 
   //update CR3 register
   lcr3(v2p(proc->pgdir));
@@ -476,19 +476,19 @@ munprotect(void *addr, int len)
   // create a new page table entry
   pte_t *pte;
   // print address
-  cprintf("*addr: %d\n",(uint)addr);
+  cprintf("*address from parameter: %d\n",(unsigned int)addr);
 
-  uint base_address = PGROUNDDOWN((uint)addr);
-  uint current = base_address;
+  unsigned int initial_address = PGROUNDDOWN((unsigned int)addr);
+  unsigned int rounded_address = initial_address;
 
   //while loop
   do {
-  pte = walkpgdir(proc->pgdir,(void *)current ,0);
+  pte = walkpgdir(proc->pgdir,(void *)rounded_address ,0);
   *pte &= 0xfffffff9;
 
   *pte |= (PTE_P | PTE_W);
   }
-  while(current < ((uint)addr +len));
+  while(rounded_address < ((unsigned int)addr + len));
 
   //update CR3 register
   lcr3(v2p(proc->pgdir));
